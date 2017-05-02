@@ -76,6 +76,18 @@ public interface IMarketplaceClientService {
 	void openFavorites(IMarketplaceClientConfiguration configuration);
 
 	/**
+	 * Open the Favorites Import wizard, optionally initialized to the given favorites list.
+	 * <p>
+	 * After performing the import, the Marketplace wizard is opened for the
+	 * {@link IMarketplaceClientConfiguration#getCatalogDescriptor() active catalog}. Cancelling the import will not
+	 * open the Marketplace wizard.
+	 *
+	 * @param configuration
+	 *            the initial configuration applied to the MPC wizard
+	 */
+	void openFavoritesImport(IMarketplaceClientConfiguration configuration);
+
+	/**
 	 * Open the Marketplace Wizard showing the result of the given search on the
 	 * {@link IMarketplaceClientConfiguration#getCatalogDescriptor() active catalog}.
 	 *

@@ -135,4 +135,9 @@ public class MarketplaceClientService implements IMarketplaceClientService {
 					StatusManager.SHOW | StatusManager.BLOCK | StatusManager.LOG);
 		}
 	}
+
+	public void openFavoritesImport(IMarketplaceClientConfiguration configuration) {
+		// WIP
+
+	}
 }

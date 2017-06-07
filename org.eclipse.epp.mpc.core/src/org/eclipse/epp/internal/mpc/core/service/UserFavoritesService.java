@@ -238,7 +238,7 @@ public class UserFavoritesService extends AbstractDataStorageService implements 
 	private String getFavoritesListUrl(String entryBody, String id) {
 		String marketplaceBaseUri = getMarketplaceBaseUri();
 		String explicitUrl = getAttribute(JSON_LIST_URL_ATTRIBUTE_PATTERN, null, entryBody);
-		if (explicitUrl != null && !explicitUrl.trim().isEmpty()) {
+		if (explicitUrl != null && explicitUrl.trim().length() > 0) {
 			try {
 				//Check that it's a valid URL
 				URL url = URLUtil.toURL(explicitUrl);
@@ -271,19 +271,19 @@ public class UserFavoritesService extends AbstractDataStorageService implements 
 		return DefaultMarketplaceService.DEFAULT_SERVICE_LOCATION;
 	}
 
-	protected String findFavoritesListOwner(String entryBody) {
+	private static String findFavoritesListOwner(String entryBody) {
 		return findFavoritesNameOrId(entryBody, JSON_OWNER_ATTRIBUTE_PATTERN);
 	}
 
-	private String findFavoritesListLabel(String entryBody) {
+	private static String findFavoritesListLabel(String entryBody) {
 		return findFavoritesNameOrId(entryBody, JSON_NAME_ATTRIBUTE_PATTERN);
 	}
 
-	private String findFavoritesListId(String entryBody) {
+	private static String findFavoritesListId(String entryBody) {
 		return findFavoritesNameOrId(entryBody, JSON_USER_ID_ATTRIBUTE_PATTERN);
 	}
 
-	private String findFavoritesNameOrId(String entryBody, Pattern pattern) {
+	private static String findFavoritesNameOrId(String entryBody, Pattern pattern) {
 		String result = null;
 		Matcher matcher = pattern.matcher(entryBody);
 		while (matcher.find()) {
@@ -489,22 +489,6 @@ public class UserFavoritesService extends AbstractDataStorageService implements 
 		}
 	}
 
-	private static String read(InputStream in) throws IOException {
-		try {
-			ByteArrayOutputStream baos = new ByteArrayOutputStream();
-			IOUtil.copy(in, baos);
-			return StringUtil.fromUTF(baos.toByteArray());
-		} catch (RuntimeException ex) {
-			Throwable cause = ex.getCause();
-			if (cause instanceof IOException) {
-				throw (IOException) cause;
-			}
-			throw ex;
-		} finally {
-			IOUtil.close(in);
-		}
-	}
-
 	private static ProtocolException malformedContentException(final URI endpoint, String body) {
 		return new ProtocolException("GET", endpoint, "1.1", MALFORMED_CONTENT_ERROR_CODE, //$NON-NLS-1$ //$NON-NLS-2$
 				"Malformed response content: " + body); //$NON-NLS-1$
@@ -609,6 +593,22 @@ public class UserFavoritesService extends AbstractDataStorageService implements 
 			String body = read(content);
 			body = body.trim();
 			return handleBody(uri, body);
+		}
+
+		private static String read(InputStream in) throws IOException {
+			try {
+				ByteArrayOutputStream baos = new ByteArrayOutputStream();
+				IOUtil.copy(in, baos);
+				return StringUtil.fromUTF(baos.toByteArray());
+			} catch (RuntimeException ex) {
+				Throwable cause = ex.getCause();
+				if (cause instanceof IOException) {
+					throw (IOException) cause;
+				}
+				throw ex;
+			} finally {
+				IOUtil.close(in);
+			}
 		}
 
 		protected List<T> handleBody(final URI uri, String body) throws ProtocolException {

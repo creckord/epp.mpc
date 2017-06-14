@@ -18,6 +18,7 @@ import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -589,17 +590,22 @@ public class UserFavoritesService extends AbstractDataStorageService implements 
 		}
 
 		@Override
-		protected List<T> handleResponseStream(InputStream content) throws IOException {
-			String body = read(content);
+		protected List<T> handleResponseStream(InputStream content, Charset charset) throws IOException {
+			String body = read(content, charset);
 			body = body.trim();
 			return handleBody(uri, body);
 		}
 
-		private static String read(InputStream in) throws IOException {
+		private static String read(InputStream in, Charset charset) throws IOException {
 			try {
 				ByteArrayOutputStream baos = new ByteArrayOutputStream();
 				IOUtil.copy(in, baos);
-				return StringUtil.fromUTF(baos.toByteArray());
+				byte[] bytes = baos.toByteArray();
+				if (bytes == null) {
+					return StringUtil.EMPTY;
+				}
+
+				return new String(bytes, charset == null ? StringUtil.UTF8 : charset.name());
 			} catch (RuntimeException ex) {
 				Throwable cause = ex.getCause();
 				if (cause instanceof IOException) {

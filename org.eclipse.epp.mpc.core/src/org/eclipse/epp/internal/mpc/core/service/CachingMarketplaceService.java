@@ -29,6 +29,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.epp.internal.mpc.core.model.Node;
 import org.eclipse.epp.internal.mpc.core.service.AbstractDataStorageService.NotAuthorizedException;
+import org.eclipse.epp.internal.mpc.core.transport.httpclient.HttpClientCachingStrategy;
 import org.eclipse.epp.internal.mpc.core.util.URLUtil;
 import org.eclipse.epp.mpc.core.model.ICategory;
 import org.eclipse.epp.mpc.core.model.IFavoriteList;
@@ -43,9 +44,37 @@ public class CachingMarketplaceService implements IMarketplaceService {
 
 	private final IMarketplaceService delegate;
 
-	private final Map<String, Reference<Object>> cache = new LinkedHashMap<String, Reference<Object>>();
+	private final Map<String, Reference<CacheItem<?>>> cache = new LinkedHashMap<String, Reference<CacheItem<?>>>();
 
 	private final ReferenceQueue<Object> cacheReferenceQueue = new ReferenceQueue<Object>();
+
+	private static class CacheItem<T> {
+		private final String key;
+
+		private final String url;
+
+		private final T item;
+
+		private Object cacheHandle;
+
+		public CacheItem(String key, T item, String url) {
+			this.key = key;
+			this.item = item;
+			this.url = url;
+		}
+
+		public T getItem() {
+			return item;
+		}
+
+		public String getUrl() {
+			return url;
+		}
+
+		public String getKey() {
+			return key;
+		}
+	}
 
 	public CachingMarketplaceService(IMarketplaceService delegate) {
 		if (delegate == null) {
@@ -61,7 +90,7 @@ public class CachingMarketplaceService implements IMarketplaceService {
 	public List<? extends IMarket> listMarkets(IProgressMonitor monitor) throws CoreException {
 		String marketsKey = "Markets:Markets"; //$NON-NLS-1$
 		@SuppressWarnings("unchecked")
-		List<? extends IMarket> marketsResult = getCached(marketsKey, List.class);
+		List<? extends IMarket> marketsResult = getValidCachedItem(marketsKey, List.class);
 		if (marketsResult == null) {
 			marketsResult = delegate.listMarkets(monitor);
 			synchronized (cache) {
@@ -78,7 +107,7 @@ public class CachingMarketplaceService implements IMarketplaceService {
 		String marketKey = computeMarketKey(market);
 		IMarket marketResult = null;
 		if (marketKey != null) {
-			marketResult = getCached(marketKey, IMarket.class);
+			marketResult = getValidCachedItem(marketKey, IMarket.class);
 		}
 		if (marketResult == null) {
 			marketResult = delegate.getMarket(market, monitor);
@@ -109,7 +138,7 @@ public class CachingMarketplaceService implements IMarketplaceService {
 		String categoryKey = computeCategoryKey(category);
 		ICategory categoryResult = null;
 		if (categoryKey != null) {
-			categoryResult = getCached(categoryKey, ICategory.class);
+			categoryResult = getValidCachedItem(categoryKey, ICategory.class);
 		}
 		if (categoryResult == null) {
 			categoryResult = delegate.getCategory(category, monitor);
@@ -126,12 +155,12 @@ public class CachingMarketplaceService implements IMarketplaceService {
 		String nodeKey = computeNodeKey(node);
 		INode nodeResult = null;
 		if (nodeKey != null) {
-			nodeResult = getCached(nodeKey, INode.class);
+			nodeResult = getValidCachedItem(nodeKey, INode.class);
 		}
 		if (nodeResult == null) {
 			String nodeUrlKey = computeNodeUrlKey(node);
 			if (nodeUrlKey != null) {
-				nodeResult = getCached(nodeUrlKey, INode.class);
+				nodeResult = getValidCachedItem(nodeUrlKey, INode.class);
 			}
 		}
 		if (nodeResult == null) {
@@ -181,7 +210,7 @@ public class CachingMarketplaceService implements IMarketplaceService {
 	private boolean mapCachedNode(INode node, Map<INode, INode> resolvedNodes) {
 		String nodeKey = computeNodeKey(node);
 		if (nodeKey != null) {
-			INode nodeResult = getCached(nodeKey, INode.class);
+			INode nodeResult = getValidCachedItem(nodeKey, INode.class);
 			if (nodeResult != null) {
 				resolvedNodes.put(node, nodeResult);
 				return true;
@@ -190,45 +219,77 @@ public class CachingMarketplaceService implements IMarketplaceService {
 		return false;
 	}
 
-	private void cache(String key, Object value) {
+	private <T> CacheItem<T> cache(String key, T value) {
 		if (key != null) {
-			cache.put(key, new SoftReference<Object>(value, cacheReferenceQueue));
+			CacheItem<?> cacheItem = new CacheItem<T>(key, value, getLastRequestUrl());
+			cache.put(key, new SoftReference<CacheItem<?>>(cacheItem, cacheReferenceQueue));
 		}
 	}
 
-	private <T> T getCached(String key, Class<T> type) {
+	private <T> T getValidCachedItem(String key, Class<T> type) {
+		CacheItem<T> cacheItem = getCacheItem(key, type);
+		if (cacheItem != null && !needsRefresh(cacheItem)) {
+			return cacheItem.getItem();
+		}
+		return null;
+	}
+
+	private boolean needsRefresh(CacheItem<?> cacheItem) {
+		if (cacheItem.getItem() == null) {
+			return true;
+		}
+		if (cacheItem.getUrl() == null) {
+			return false;
+		}
+		HttpClientCachingStrategy cachingStrategy = getCachingStrategy();
+		if (cachingStrategy == null) {
+			return false;
+		}
+		return cachingStrategy.needsRefresh(cacheItem.getUrl()) || cachingStrategy.(cacheItem.getUrl());
+	}
+
+	private <T> CacheItem<T> getCacheItem(String key, Class<T> type) {
 		synchronized (cache) {
 			gcCache();
-			Reference<Object> reference = cache.get(key);
+			Reference<CacheItem<?>> reference = cache.get(key);
 			if (reference != null) {
-				return type.cast(reference.get());
+				CacheItem<?> cacheItem = reference.get();
+				if (cacheItem != null) {
+					type.cast(cacheItem.getItem());
+					@SuppressWarnings("unchecked")
+					CacheItem<T> castItem = (CacheItem<T>) cacheItem;
+					return castItem;
+				}
 			}
 		}
 		return null;
 	}
 
 	private void gcCache() {
-		if (cacheReferenceQueue.poll() != null) {
-			while (cacheReferenceQueue.poll() != null) {
-				//clear the queue
-			}
-			for (Iterator<Reference<Object>> i = cache.values().iterator(); i.hasNext();) {
-				Reference<Object> reference = i.next();
-				if (reference.isEnqueued()) {
-					i.remove();
-				}
+		boolean cleared = false;
+		while (cacheReferenceQueue.poll() != null) {
+			//clear the queue
+			cleared = true;
+		}
+		if (!cleared) {
+			return;
+		}
+		for (Iterator<? extends Reference<?>> i = cache.values().iterator(); i.hasNext();) {
+			Reference<?> reference = i.next();
+			if (reference.isEnqueued()) {
+				i.remove();
 			}
 		}
 	}
 
-	private String computeNodeKey(INode node) {
+	private static String computeNodeKey(INode node) {
 		if (node.getId() != null) {
 			return "Node:" + node.getId(); //$NON-NLS-1$
 		}
 		return null;
 	}
 
-	private String computeNodeUrlKey(INode node) {
+	private static String computeNodeUrlKey(INode node) {
 		if (node.getUrl() != null) {
 			return "Node:" + node.getUrl(); //$NON-NLS-1$
 		}
@@ -245,14 +306,14 @@ public class CachingMarketplaceService implements IMarketplaceService {
 		return null;
 	}
 
-	private String computeMarketKey(IMarket market) {
+	private static String computeMarketKey(IMarket market) {
 		if (market.getId() != null) {
 			return "Market:" + market.getId(); //$NON-NLS-1$
 		}
 		return null;
 	}
 
-	private String computeCategoryKey(ICategory category) {
+	private static String computeCategoryKey(ICategory category) {
 		if (category.getId() != null) {
 			return "Category:" + category.getId(); //$NON-NLS-1$
 		}
@@ -288,10 +349,7 @@ public class CachingMarketplaceService implements IMarketplaceService {
 			throws CoreException {
 		ISearchResult result = null;
 		synchronized (cache) {
-			Reference<Object> reference = cache.get(key);
-			if (reference != null) {
-				result = (ISearchResult) reference.get();
-			}
+			result = getValidCachedItem(key, ISearchResult.class);
 		}
 		if (result == null) {
 			result = searchOperation.doSearch(monitor);
@@ -307,7 +365,7 @@ public class CachingMarketplaceService implements IMarketplaceService {
 		return result;
 	}
 
-	private String computeSearchKey(String prefix, IMarket market, ICategory category, String queryText) {
+	private static String computeSearchKey(String prefix, IMarket market, ICategory category, String queryText) {
 		return prefix
 				+ ":" + (market == null ? "" : market.getId()) + ":" + (category == null ? "" : category.getId()) + ":" + (queryText == null ? "" : queryText.trim()); //$NON-NLS-1$ //$NON-NLS-2$//$NON-NLS-3$//$NON-NLS-4$//$NON-NLS-5$ //$NON-NLS-6$
 	}
@@ -386,7 +444,7 @@ public class CachingMarketplaceService implements IMarketplaceService {
 
 	public INews news(IProgressMonitor monitor) throws CoreException {
 		String newsKey = "News:News"; //$NON-NLS-1$
-		INews newsResult = getCached(newsKey, INews.class);
+		INews newsResult = getValidCachedItem(newsKey, INews.class);
 		if (newsResult == null) {
 			newsResult = delegate.news(monitor);
 			synchronized (cache) {

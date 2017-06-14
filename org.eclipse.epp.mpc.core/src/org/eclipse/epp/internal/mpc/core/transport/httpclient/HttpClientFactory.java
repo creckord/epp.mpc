@@ -27,6 +27,7 @@ import org.apache.http.impl.client.BasicCookieStore;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.impl.client.ProxyAuthenticationStrategy;
 import org.apache.http.impl.client.TargetAuthenticationStrategy;
+import org.apache.http.impl.client.cache.CachingHttpClientBuilder;
 import org.apache.http.protocol.HttpContext;
 import org.eclipse.epp.internal.mpc.core.MarketplaceClientCore;
 import org.eclipse.userstorage.internal.StorageProperties;
@@ -44,6 +45,8 @@ class HttpClientFactory {
 	private HttpClient client;
 
 	private Executor executor;
+
+	private HttpClientCachingStrategy cachingStrategy;
 
 	public HttpClient build() {
 		HttpClientBuilder clientBuilder = createClientBuilder();
@@ -84,8 +87,16 @@ class HttpClientFactory {
 		return credentialsProvider;
 	}
 
-	private static HttpClientBuilder createClientBuilder() {
-		HttpClientBuilder builder = HttpClientBuilder.create();
+	private HttpClientBuilder createClientBuilder() {
+		CachingHttpClientBuilder cachingBuilder = null;
+		HttpClientBuilder builder;
+		if (cachingStrategy != null) {
+			cachingBuilder = CachingHttpClientBuilder.create();
+			builder = cachingBuilder;
+			cachingStrategy.configure(cachingBuilder);
+		} else {
+			builder = HttpClientBuilder.create();
+		}
 		builder = customizeBuilder(builder);
 
 		builder.setMaxConnPerRoute(100).setMaxConnTotal(200);

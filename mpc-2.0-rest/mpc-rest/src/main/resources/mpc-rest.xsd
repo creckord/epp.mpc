@@ -1,0 +1,531 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<xs:schema version="1.0"
+   xmlns:xs="http://www.w3.org/2001/XMLSchema" 
+   xmlns:mpc="https://ns.eclipse.org/marketplace/rest" 
+   targetNamespace="https://ns.eclipse.org/marketplace/rest">
+
+  <xs:complexType name="Catalog">
+    <xs:annotation>
+      <xs:documentation><![CDATA[A catalog describes an entry point to a marketplace server. Its {@link #getUrl() url} is the base of the Marketplace
+REST API. It has a description, image and optional additional provider branding information, which can be used to
+present the marketplace to users, e.g. in the Marketplace Wizard.
+
+(author): Benjamin Muskalla, Carsten Reckord
+(noextend): This class is not intended to be extended by clients.
+(noimplement): This class is not intended to be implemented by clients.
+(see): CatalogService, https://wiki.eclipse.org/Marketplace/REST]]></xs:documentation>
+    </xs:annotation>
+    <xs:complexContent>
+      <xs:extension base="mpc:Identifiable">
+        <xs:sequence>
+          <xs:element minOccurs="0" name="description" type="mpc:CData">
+            <xs:annotation>
+              <xs:documentation><![CDATA[(return): this catalog's description suitable for presentation to the user.]]></xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element minOccurs="0" name="icon" type="xs:anyURI">
+            <xs:annotation>
+              <xs:documentation><![CDATA[(return): a URL to an image resource used to present this catalog in a catalog chooser. May be null.]]></xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element minOccurs="0" name="wizard" type="mpc:Wizard">
+            <xs:annotation>
+              <xs:documentation><![CDATA[(return): additional branding information]]></xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element minOccurs="0" name="dependenciesRepository" type="xs:string">
+            <xs:annotation>
+              <xs:documentation><![CDATA[An optional URI to a repository from which dependencies may be installed, may be null.
+
+(return): the URI to use for dependency resolution, or null.]]></xs:documentation>
+            </xs:annotation>
+          </xs:element>
+        </xs:sequence>
+        <xs:attribute name="title" type="xs:string">
+          <xs:annotation>
+            <xs:documentation><![CDATA[(return): this element's name]]></xs:documentation>
+          </xs:annotation>
+        </xs:attribute>
+        <xs:attribute name="selfContained" type="mpc:Flag" use="optional" default="0">
+          <xs:annotation>
+            <xs:documentation><![CDATA[If the catalog is self-contained, then a {@link Node node} installation will only use the node's
+{@link Node#getUpdateurl() update url} and the catalog's {@link #getDependenciesRepository() dependency
+repository}. Otherwise all known repositories are consulted.
+
+(return): true if this catalog is self-contained, false if all known repositories should be used during
+        installation]]></xs:documentation>
+          </xs:annotation>
+        </xs:attribute>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:complexType abstract="true" name="Identifiable">
+    <xs:sequence/>
+    <xs:attribute name="id" type="xs:string">
+      <xs:annotation>
+        <xs:documentation><![CDATA[(return): this element's unique id in its {@link Catalog catalog}]]></xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="url" type="xs:anyURI">
+      <xs:annotation>
+        <xs:documentation><![CDATA[(return): the URL from which this element can be re-retrieved from the marketplace server]]></xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+  </xs:complexType>
+
+  <xs:element name="relatedtab" type="mpc:Tab"/>
+  <xs:element name="recommendationtab" substitutionGroup="mpc:relatedtab"/>
+
+  <xs:complexType name="Wizard">
+    <xs:annotation>
+      <xs:documentation><![CDATA[Branding information for a marketplace catalog entry.
+
+(author): Benjamin Muskalla, Carsten Reckord
+(noextend): This class is not intended to be extended by clients.
+(noimplement): This class is not intended to be implemented by clients.
+(see): Catalog]]></xs:documentation>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:element minOccurs="0" name="icon" type="xs:anyURI"/>
+      <xs:element minOccurs="0" name="searchtab" type="mpc:Tab"/>
+      <xs:element minOccurs="0" name="populartab" type="mpc:Tab"/>
+      <xs:element minOccurs="0" name="recenttab" type="mpc:Tab"/>
+      <xs:element ref="mpc:relatedtab"/>
+      <xs:element minOccurs="0" name="featuredmarkettab" type="mpc:Tab"/>
+      <xs:element minOccurs="0" name="favoritestab" type="mpc:FavoritesTab"/>
+      <xs:element minOccurs="0" name="news" type="mpc:News"/>
+    </xs:sequence>
+    <xs:attribute name="title" type="xs:string"/>
+  </xs:complexType>
+
+  <xs:complexType name="Tab">
+    <xs:simpleContent>
+      <xs:extension base="xs:string">
+        <xs:attribute name="enabled" type="mpc:Flag"/>
+      </xs:extension>
+    </xs:simpleContent>
+  </xs:complexType>
+
+  <xs:complexType name="FavoritesTab">
+    <xs:simpleContent>
+      <xs:extension base="mpc:Tab">
+        <xs:attribute name="apiserver" type="xs:anyURI"/>
+        <xs:attribute name="apikey" type="xs:string"/>
+      </xs:extension>
+    </xs:simpleContent>
+  </xs:complexType>
+
+  <xs:complexType name="News">
+    <xs:annotation>
+      <xs:documentation><![CDATA[Information about a published news item for a catalog. This can be used to e.g. integrate a regularly published
+newsletter with the marketplace wizard.
+
+(author): Carsten Reckord
+(noextend): This class is not intended to be extended by clients.
+(noimplement): This class is not intended to be implemented by clients.]]></xs:documentation>
+    </xs:annotation>
+    <xs:simpleContent>
+      <xs:extension base="xs:anyURI">
+        <xs:attribute name="shorttitle" type="xs:string">
+          <xs:annotation>
+            <xs:documentation><![CDATA[(return): a short news title suitable to be presented before the actual news is opened.]]></xs:documentation>
+          </xs:annotation>
+        </xs:attribute>
+        <xs:attribute name="timestamp" type="xs:long">
+          <xs:annotation>
+            <xs:documentation><![CDATA[(return): a timestamp for the last update to the news. Any change to the published news should result in an updated
+        timestamp.]]></xs:documentation>
+          </xs:annotation>
+        </xs:attribute>
+      </xs:extension>
+    </xs:simpleContent>
+  </xs:complexType>
+
+  <xs:complexType name="Category">
+    <xs:annotation>
+      <xs:documentation><![CDATA[Marketplaces are categorized in {@link Market markets} and {@link Category categories}. Each category can occur in
+one or more markets and can be associated with any number of {@link #getNode() nodes}.
+
+(author): David Green, Carsten Reckord
+(noextend): This class is not intended to be extended by clients.
+(noimplement): This class is not intended to be implemented by clients.]]></xs:documentation>
+    </xs:annotation>
+    <xs:complexContent>
+      <xs:extension base="mpc:Named">
+        <xs:sequence/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:complexType abstract="true" name="Named">
+    <xs:annotation>
+      <xs:documentation><![CDATA[Base class for marketplace entities like nodes or categories. Instances are identified by an id unique to their
+{@link Catalog marketplace server} and/or their url. Optionally, they may have a name suitable for presentation to
+the user.
+
+(author): David Green, Carsten Reckord
+(noextend): This class is not intended to be extended by clients.
+(noimplement): This class is not intended to be implemented by clients.]]></xs:documentation>
+    </xs:annotation>
+    <xs:complexContent>
+      <xs:extension base="mpc:Identifiable">
+        <xs:sequence/>
+        <xs:attribute name="name" type="xs:string">
+          <xs:annotation>
+            <xs:documentation><![CDATA[(return): this element's name]]></xs:documentation>
+          </xs:annotation>
+        </xs:attribute>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:complexType name="CategoryContents">
+    <xs:complexContent>
+      <xs:extension base="mpc:Category">
+        <xs:sequence>
+          <xs:element maxOccurs="unbounded" minOccurs="0" name="node" type="mpc:Node">
+            <xs:annotation>
+              <xs:documentation><![CDATA[A list of nodes for this category. Entries in this list are typically not fully realized. They will only have
+their {@link Node#getId() ids} and {@link Node#getName() names} set. Use
+{@link MarketplaceService#getNode(Node, org.eclipse.core.runtime.ProgressMonitor) the marketplace service} to
+retrieve a fully realized node instance from the marketplace server.
+
+(return): the list of nodes in this category.]]></xs:documentation>
+            </xs:annotation>
+          </xs:element>
+        </xs:sequence>
+        <xs:attribute name="marketid" type="xs:string"/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:complexType name="Node">
+    <xs:annotation>
+      <xs:documentation><![CDATA[A node represents an entry on a marketplace. It is associated with one or more categories, under which it is listed.
+Additionally, tags can be specified to define related technologies.
+<p>
+A node contains all information about a marketplace entry necessary to present it to users, including a
+{@link #getName()}, {@link #getOwner() owner}, {@link #getShortdescription() short} and {@link #getBody() long}
+description, {@link #getImage() icon} and optional {@link #getScreenshot()}. Some social feedback on the node entry
+is provided by means of its {@link #getInstallsTotal() total} and {@link #getInstallsRecent() recent} installation
+counts, as well as the number of {@link #getFavorited() favorite votes} it has received.
+<p>
+Nodes can describe different kinds of {@link #getType() contributions}, like installable Eclipse plug-ins, consulting
+services and so on. In case of installable Eclipse plug-ins, the {@link #getIus() installable units} are provided for
+installation from the node's {@link #getUpdateurl() update site}.
+
+(author): David Green, Benjamin Muskalla, Carsten Reckord
+(noextend): This class is not intended to be extended by clients.
+(noimplement): This class is not intended to be implemented by clients.]]></xs:documentation>
+    </xs:annotation>
+    <xs:complexContent>
+      <xs:extension base="mpc:Named">
+        <xs:sequence>
+          <xs:element minOccurs="0" name="favorited" type="xs:int">
+            <xs:annotation>
+              <xs:documentation><![CDATA[The number of times this node has been favorited.]]></xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element minOccurs="0" name="installstotal" type="xs:int">
+            <xs:annotation>
+              <xs:documentation><![CDATA[The number of times this node has been installed.]]></xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element minOccurs="0" name="installsrecent" type="xs:int">
+            <xs:annotation>
+              <xs:documentation><![CDATA[The number of times this node has been installed recently (last 30 days).]]></xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element minOccurs="0" name="type" type="xs:string">
+            <xs:annotation>
+              <xs:documentation><![CDATA[The type of listing, for example 'resource' or 'training'.]]></xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element minOccurs="0" name="categories">
+            <xs:annotation>
+              <xs:documentation><![CDATA[the categories of this listing.]]></xs:documentation>
+            </xs:annotation>
+            <xs:complexType>
+              <xs:sequence>
+                <xs:element maxOccurs="unbounded" minOccurs="0" name="category" type="mpc:Category"/>
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+          <xs:element minOccurs="0" name="tags">
+            <xs:complexType>
+              <xs:sequence>
+                <xs:element maxOccurs="unbounded" minOccurs="0" name="tag" type="mpc:Tag"/>
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+          <xs:element minOccurs="0" name="owner" type="xs:string"/>
+          <xs:element minOccurs="0" name="shortdescription" type="mpc:CData">
+            <xs:annotation>
+              <xs:documentation><![CDATA[The short description of this listing, may include HTML markup (escaped). Note that the short description may or
+may not be shorter than the body.]]></xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element minOccurs="0" name="body" type="mpc:CData">
+            <xs:annotation>
+              <xs:documentation><![CDATA[The description of this listing, may include HTML markup (escaped).]]></xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element minOccurs="0" name="created" type="mpc:Epoch">
+            <xs:annotation>
+              <xs:documentation><![CDATA[The time of creation for this entry.]]></xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element minOccurs="0" name="changed" type="mpc:Epoch">
+            <xs:annotation>
+              <xs:documentation><![CDATA[The last change time for this entry.]]></xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element minOccurs="0" name="foundationmember" type="mpc:Flag">
+            <xs:annotation>
+              <xs:documentation><![CDATA[(return): true if this node's owner is a foundation member, false otherwise, null if unknown.]]></xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element minOccurs="0" name="homepageurl" type="xs:anyURI">
+            <xs:annotation>
+              <xs:documentation><![CDATA[An URL for the homepage for this entry or its owner.]]></xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element minOccurs="0" name="image" type="xs:anyURI">
+            <xs:annotation>
+              <xs:documentation><![CDATA[The image used as this entry's logo]]></xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element minOccurs="0" name="screenshot" type="xs:anyURI">
+            <xs:annotation>
+              <xs:documentation><![CDATA[An optional screenshot used in conjunction with the {@link #getBody() full description}.]]></xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element minOccurs="0" name="version" type="xs:string">
+            <xs:annotation>
+              <xs:documentation><![CDATA[The version of the solution represented by this node. It is encouraged to use a valid OSGi version, but this
+isn't guaranteed.]]></xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element minOccurs="0" name="license" type="xs:string">
+            <xs:annotation>
+              <xs:documentation><![CDATA[The license for the plug-in represented by this node, e.g. 'EPL'.]]></xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element minOccurs="0" name="companyname" type="mpc:CData">
+            <xs:annotation>
+              <xs:documentation><![CDATA[The owner's company name]]></xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element minOccurs="0" name="status" type="xs:string">
+            <xs:annotation>
+              <xs:documentation><![CDATA[The development status of this plug-in entry, e.g. "Production/Stable"]]></xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element minOccurs="0" name="eclipseversion" type="mpc:Tokens">
+            <xs:annotation>
+              <xs:documentation><![CDATA[A comma-separated list of supported Eclipse versions. Currently, this can take any form, although it is
+encouraged to use a comma-separated list of Eclipse versions like "3.6-3.8, 4.2.1, 4.2.2, 4.3".
+<p>
+This might get more standardized in the future.]]></xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element minOccurs="0" name="min_java_version" type="xs:string"/>
+          <xs:element minOccurs="0" name="supporturl" type="xs:anyURI">
+            <xs:annotation>
+              <xs:documentation><![CDATA[(return): a contact URL to get support for this entry]]></xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element minOccurs="0" name="updateurl" type="xs:anyURI">
+            <xs:annotation>
+              <xs:documentation><![CDATA[The URL of an Eclipse update site containing this entry's {@link #getIus() installable units}.]]></xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element minOccurs="0" name="ius">
+            <xs:annotation>
+              <xs:documentation><![CDATA[The installable units that will be installed for this node.]]></xs:documentation>
+            </xs:annotation>
+            <xs:complexType>
+              <xs:sequence>
+                <xs:element maxOccurs="unbounded" minOccurs="0" name="iu" type="mpc:Iu"/>
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+          <xs:element minOccurs="0" name="platforms">
+            <xs:annotation>
+              <xs:documentation><![CDATA[The supported platforms under which this plug-in node can be installed.]]></xs:documentation>
+            </xs:annotation>
+            <xs:complexType>
+              <xs:sequence>
+                <xs:element maxOccurs="unbounded" minOccurs="0" name="platform" type="xs:string"/>
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:complexType name="Tag">
+    <xs:annotation>
+      <xs:documentation><![CDATA[A simple tag that can be associated with nodes to give additional information about related topics.
+
+(author): Benjamin Muskalla, Carsten Reckord
+(noextend): This class is not intended to be extended by clients.
+(noimplement): This class is not intended to be implemented by clients.]]></xs:documentation>
+    </xs:annotation>
+    <xs:complexContent>
+      <xs:extension base="mpc:Named">
+        <xs:sequence/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:complexType name="Iu">
+    <xs:annotation>
+      <xs:documentation><![CDATA[A installable unit that can be optional and/or preseleted on install
+
+(author): Carsten Reckord
+(noextend): This class is not intended to be extended by clients.
+(noimplement): This class is not intended to be implemented by clients.]]></xs:documentation>
+    </xs:annotation>
+    <xs:simpleContent>
+      <xs:extension base="xs:string">
+        <xs:attribute name="required" type="xs:boolean" use="required"/>
+        <xs:attribute name="selected" type="xs:boolean" use="required"/>
+      </xs:extension>
+    </xs:simpleContent>
+  </xs:complexType>
+
+  <xs:complexType name="CategoryInfo">
+    <xs:complexContent>
+      <xs:extension base="mpc:Category">
+        <xs:sequence>
+          <xs:element minOccurs="0" name="count" type="xs:int">
+            <xs:annotation>
+              <xs:documentation><![CDATA[(return): the number of {@link #getNode() nodes} in this category]]></xs:documentation>
+            </xs:annotation>
+          </xs:element>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:complexType name="FavoriteList">
+    <xs:complexContent>
+      <xs:extension base="mpc:Named">
+        <xs:sequence>
+          <xs:element minOccurs="0" name="owner" type="xs:string"/>
+          <xs:element minOccurs="0" name="ownerProfileUrl" type="xs:anyURI"/>
+          <xs:element minOccurs="0" name="icon" type="xs:anyURI"/>
+          <xs:element maxOccurs="unbounded" minOccurs="0" name="nodes" nillable="true" type="mpc:Node"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:complexType name="Market">
+    <xs:annotation>
+      <xs:documentation><![CDATA[Marketplaces are categorized in {@link Market markets} and {@link Category categories}. Each market can have a
+number of categories, which in turn can be associated with {@link Node nodes}.
+
+(author): David Green, Carsten Reckord
+(noextend): This class is not intended to be extended by clients.
+(noimplement): This class is not intended to be implemented by clients.
+(see): Category, Node]]></xs:documentation>
+    </xs:annotation>
+    <xs:complexContent>
+      <xs:extension base="mpc:Named">
+        <xs:sequence>
+          <xs:element maxOccurs="unbounded" minOccurs="0" name="category" type="mpc:CategoryInfo"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:complexType name="Marketplace">
+    <xs:annotation>
+      <xs:documentation><![CDATA[A list of catalogs.
+
+(author): Carsten Reckord
+(noextend): This class is not intended to be extended by clients.
+(noimplement): This class is not intended to be implemented by clients.
+(see): Catalog]]></xs:documentation>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:element minOccurs="0" name="catalogs">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element maxOccurs="unbounded" minOccurs="0" name="catalog" type="mpc:Catalog"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element maxOccurs="unbounded" minOccurs="0" name="category" type="mpc:CategoryContents"/>
+      <xs:element maxOccurs="unbounded" minOccurs="0" name="market" type="mpc:Market"/>
+      <xs:element maxOccurs="unbounded" minOccurs="0" name="node" type="mpc:Node"/>
+      <xs:choice minOccurs="0">
+        <xs:element name="popular" type="mpc:NodeList"/>
+        <xs:element name="recent" type="mpc:NodeList"/>
+        <xs:element name="related" type="mpc:NodeList"/>
+        <xs:element name="favorites" type="mpc:NodeList"/>
+        <xs:element name="featured" type="mpc:NodeList"/>
+        <xs:element name="search" type="mpc:SearchResult"/>
+      </xs:choice>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="NodeList">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="count" type="xs:int">
+        <xs:annotation>
+          <xs:documentation><![CDATA[The number of matches that matched the query, which may not be equal to the number of nodes returned.]]></xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element maxOccurs="unbounded" minOccurs="0" name="node" type="mpc:Node">
+        <xs:annotation>
+          <xs:documentation><![CDATA[The nodes that were matched by the query]]></xs:documentation>
+        </xs:annotation>
+      </xs:element>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="SearchResult">
+    <xs:annotation>
+      <xs:documentation><![CDATA[Search results returned by the marketplace server through the {@link MarketplaceService}. The actual number of
+returned nodes might be less than the number of matches on the server. In that case, the {@link #getCount()
+match count} reflects the number of actual matches and the {@link #getNodes() returned results} are a subset of all
+matches.
+
+(author): David Green, Carsten Reckord
+(noextend): This class is not intended to be extended by clients.
+(noimplement): This class is not intended to be implemented by clients.]]></xs:documentation>
+    </xs:annotation>
+    <xs:complexContent>
+      <xs:extension base="mpc:NodeList">
+        <xs:sequence/>
+        <xs:attribute name="term" type="xs:string"/>
+        <xs:attribute name="url" type="xs:anyURI"/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  
+  <xs:simpleType name="Flag">
+   <xs:restriction base="xs:string">
+      <xs:enumeration value="0"/>
+      <xs:enumeration value="1"/>
+      <xs:enumeration value="true"/>
+      <xs:enumeration value="false"/>
+      <xs:enumeration value="yes"/>
+      <xs:enumeration value="no"/>
+   </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="CData">
+   <xs:restriction base="xs:string"/>
+  </xs:simpleType>
+  <xs:simpleType name="Epoch">
+   <xs:restriction base="xs:long"/>
+  </xs:simpleType>
+  <xs:simpleType name="Tokens">
+   <xs:list itemType="xs:string"/>
+  </xs:simpleType>
+</xs:schema>

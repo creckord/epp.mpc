@@ -1,0 +1,108 @@
+Catalog: @XmlAttribute
+Catalog: String title;
+Catalog: @XmlAttribute
+Catalog: @XmlJavaTypeAdapter(FlagToBooleanAdapter.class)
+Catalog: Boolean selfContained;
+Catalog: @XmlJavaTypeAdapter(CDataAdapter.class)
+Catalog: String description;
+CategoryContents: @XmlAttribute
+CategoryContents: String marketid;
+CategoryContents: @XmlElement(name="node")
+CategoryContents: List<Node> nodes;
+FavoritesTab: @XmlAttribute
+FavoritesTab: URL apiserver;
+FavoritesTab: @XmlAttribute
+FavoritesTab: String apikey;
+Identifiable: @XmlAttribute
+Identifiable: String id;
+Identifiable: @XmlAttribute
+Identifiable: String url;
+Iu: @XmlValue
+Iu: String id;
+Iu: @XmlAttribute
+Iu: boolean required;
+Iu: @XmlAttribute
+Iu: boolean selected;
+Market: @XmlElement(name="category")
+Market: List<CategoryInfo> categories;
+Marketplace: @XmlElementWrapper
+Marketplace: @XmlElement(name="catalog")
+Marketplace: List<Catalog> catalogs;
+Marketplace: @XmlElement(name="category")
+Marketplace: List<CategoryContents> categories;
+Marketplace: @XmlElement(name="market")
+Marketplace: List<Market> markets;
+Marketplace: @XmlElement(name="node")
+Marketplace: List<Node> nodes;
+Marketplace: @XmlElements({
+Marketplace: @XmlElement(name="popular"),
+Marketplace: @XmlElement(name="recent"),
+Marketplace: @XmlElement(name="related"),
+Marketplace: @XmlElement(name="favorites"),
+Marketplace: @XmlElement(name="featured"),
+Marketplace: @XmlElement(name="search", type=SearchResult.class)
+Marketplace: })
+Marketplace: NodeList list;
+Named: @XmlAttribute
+Named: String name;
+News: @XmlAttribute
+News: String shorttitle;
+News: @XmlAttribute
+News: Long timestamp;
+News: @XmlValue
+News: URL url;
+Node: @XmlElement(name="installstotal")
+Node: Integer installsTotal;
+Node: @XmlElement(name="installsrecent")
+Node: Integer installsRecent;
+Node: @XmlElementWrapper
+Node: @XmlElement(name="category")
+Node: List<Category> categories;
+Node: @XmlElementWrapper
+Node: @XmlElement(name="tag")
+Node: List<Tag> tags;
+Node: @XmlJavaTypeAdapter(CDataAdapter.class)
+Node: String shortdescription;
+Node: @XmlJavaTypeAdapter(CDataAdapter.class)
+Node: String body;
+Node: @XmlJavaTypeAdapter(EpochDateAdapter.class)
+Node: Date created;
+Node: @XmlJavaTypeAdapter(EpochDateAdapter.class)
+Node: Date changed;
+Node: @XmlJavaTypeAdapter(FlagToBooleanAdapter.class)
+Node: Boolean foundationmember;
+Node: @XmlJavaTypeAdapter(CDataAdapter.class)
+Node: String image;
+Node: @XmlJavaTypeAdapter(CDataAdapter.class)
+Node: String companyname;
+Node: @XmlElement
+Node: @XmlJavaTypeAdapter(CommaSeparatedStringsAdapter.class)
+Node: List<String> eclipseversion;
+Node: @XmlElement(name="min_java_version")
+Node: String minJavaVersion;
+Node: @XmlJavaTypeAdapter(CDataAdapter.class)
+Node: String supporturl;
+Node: @XmlElementWrapper
+Node: @XmlElement(name="iu")
+Node: List<Iu> ius;
+Node: @XmlElementWrapper
+Node: @XmlElement(name="platform")
+Node: List<String> platforms;
+NodeList: @XmlElement(name = "node")
+NodeList: List<Node> nodes;
+SearchResult: @XmlAttribute
+SearchResult: String term;
+SearchResult: @XmlAttribute
+SearchResult: URL url;
+Tab: @XmlAttribute
+Tab: @XmlJavaTypeAdapter(FlagToBooleanAdapter.class)
+Tab: Boolean enabled;
+Tab: @XmlValue
+Tab: String name;
+Wizard: @XmlAttribute
+Wizard: String title;
+Wizard: @XmlElements({
+Wizard: @XmlElement(name = "relatedtab"),
+Wizard: @XmlElement(name = "recommendationtab")
+Wizard: })
+Wizard: Tab relatedtab;

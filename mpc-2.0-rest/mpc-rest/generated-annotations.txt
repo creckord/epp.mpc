@@ -1,0 +1,156 @@
+Catalog: @XmlJavaTypeAdapter(CDataAdapter.class)
+Catalog: final String description;
+Catalog: @XmlElement(type = String.class)
+Catalog: @XmlJavaTypeAdapter(SafeURIAdapter.class)
+Catalog: @XmlSchemaType(name = "anyURI")
+Catalog: final URI icon;
+Catalog: @XmlAttribute(name = "title")
+Catalog: final String title;
+Catalog: @XmlAttribute(name = "selfContained")
+Catalog: @XmlJavaTypeAdapter(FlagToBooleanAdapter.class)
+Catalog: final Boolean selfContained;
+CategoryContents: @XmlElement(name = "node")
+CategoryContents: final List<Node> nodes;
+CategoryContents: @XmlAttribute(name = "marketid")
+CategoryContents: final String marketid;
+FavoriteList: @XmlElement(type = String.class)
+FavoriteList: @XmlJavaTypeAdapter(SafeURIAdapter.class)
+FavoriteList: @XmlSchemaType(name = "anyURI")
+FavoriteList: final URI ownerProfileUrl;
+FavoriteList: @XmlElement(type = String.class)
+FavoriteList: @XmlJavaTypeAdapter(SafeURIAdapter.class)
+FavoriteList: @XmlSchemaType(name = "anyURI")
+FavoriteList: final URI icon;
+FavoriteList: @XmlElement(nillable = true)
+FavoriteList: final List<Node> nodes;
+FavoritesTab: @XmlAttribute(name = "apiserver")
+FavoritesTab: @XmlJavaTypeAdapter(SafeURIAdapter.class)
+FavoritesTab: @XmlSchemaType(name = "anyURI")
+FavoritesTab: final URI apiserver;
+FavoritesTab: @XmlAttribute(name = "apikey")
+FavoritesTab: final String apikey;
+Identifiable: @XmlAttribute(name = "id")
+Identifiable: final String id;
+Identifiable: @XmlAttribute(name = "url")
+Identifiable: @XmlJavaTypeAdapter(SafeURIAdapter.class)
+Identifiable: @XmlSchemaType(name = "anyURI")
+Identifiable: final URI url;
+Iu: @XmlValue
+Iu: final String id;
+Iu: @XmlAttribute(name = "required", required = true)
+Iu: final boolean required;
+Iu: @XmlAttribute(name = "selected", required = true)
+Iu: final boolean selected;
+Market: @XmlElement(name = "category")
+Market: final List<CategoryInfo> categories;
+Marketplace: @XmlElementWrapper
+Marketplace: @XmlElement(name = "catalog")
+Marketplace: final List<Catalog> catalogs;
+Marketplace: @XmlElement(name = "category")
+Marketplace: final List<CategoryContents> categories;
+Marketplace: @XmlElement(name = "market")
+Marketplace: final List<Market> markets;
+Marketplace: @XmlElement(name = "node")
+Marketplace: final List<Node> nodes;
+Named: @XmlAttribute(name = "name")
+Named: final String name;
+News: @XmlValue
+News: @XmlJavaTypeAdapter(SafeURIAdapter.class)
+News: @XmlSchemaType(name = "anyURI")
+News: final URI url;
+News: @XmlAttribute(name = "shorttitle")
+News: final String shorttitle;
+News: @XmlAttribute(name = "timestamp")
+News: final Long timestamp;
+Node: @XmlElementWrapper
+Node: @XmlElement(name = "category")
+Node: final List<Category> categories;
+Node: @XmlElementWrapper
+Node: @XmlElement(name = "tag")
+Node: final List<Tag> tags;
+Node: @XmlJavaTypeAdapter(CDataAdapter.class)
+Node: final String shortdescription;
+Node: @XmlJavaTypeAdapter(CDataAdapter.class)
+Node: final String body;
+Node: @XmlElement(type = String.class)
+Node: @XmlJavaTypeAdapter(EpochDateAdapter.class)
+Node: @XmlSchemaType(name = "long")
+Node: final Date created;
+Node: @XmlElement(type = String.class)
+Node: @XmlJavaTypeAdapter(EpochDateAdapter.class)
+Node: @XmlSchemaType(name = "long")
+Node: final Date changed;
+Node: @XmlElement(type = String.class)
+Node: @XmlJavaTypeAdapter(FlagToBooleanAdapter.class)
+Node: final Boolean foundationmember;
+Node: @XmlElement(type = String.class)
+Node: @XmlJavaTypeAdapter(SafeURIAdapter.class)
+Node: @XmlSchemaType(name = "anyURI")
+Node: final URI homepageurl;
+Node: @XmlElement(type = String.class)
+Node: @XmlJavaTypeAdapter(SafeURIAdapter.class)
+Node: @XmlSchemaType(name = "anyURI")
+Node: final URI image;
+Node: @XmlElement(type = String.class)
+Node: @XmlJavaTypeAdapter(SafeURIAdapter.class)
+Node: @XmlSchemaType(name = "anyURI")
+Node: final URI screenshot;
+Node: @XmlJavaTypeAdapter(CDataAdapter.class)
+Node: final String companyname;
+Node: @XmlElement(type = String.class)
+Node: @XmlJavaTypeAdapter(TokensAdapter.class)
+Node: final TokenList eclipseversion;
+Node: @XmlElement(name = "min_java_version")
+Node: final String minJavaVersion;
+Node: @XmlElement(type = String.class)
+Node: @XmlJavaTypeAdapter(SafeURIAdapter.class)
+Node: @XmlSchemaType(name = "anyURI")
+Node: final URI supporturl;
+Node: @XmlElement(type = String.class)
+Node: @XmlJavaTypeAdapter(SafeURIAdapter.class)
+Node: @XmlSchemaType(name = "anyURI")
+Node: final URI updateurl;
+Node: @XmlElementWrapper
+Node: @XmlElement(name = "iu")
+Node: final List<Iu> ius;
+Node: @XmlElementWrapper
+Node: @XmlElement(name = "platform")
+Node: final List<String> platforms;
+ObjectFactory: @XmlElementDecl(namespace = "https://ns.eclipse.org/marketplace/rest", name = "relatedtab")
+ObjectFactory: JAXBElement<Tab> createRelatedtab(Tab value) {
+ObjectFactory: return new JAXBElement<Tab>(_Relatedtab_QNAME, Tab.class, null, value);
+ObjectFactory: }
+ObjectFactory: 
+ObjectFactory: /**
+ObjectFactory: * Create an instance of {@link JAXBElement }{@code <}{@link Tab }{@code >}
+ObjectFactory: * 
+ObjectFactory: * @param value
+ObjectFactory: *     Java instance representing xml element's value.
+ObjectFactory: * @return
+ObjectFactory: *     the new instance of {@link JAXBElement }{@code <}{@link Tab }{@code >}
+ObjectFactory: */
+ObjectFactory: @XmlElementDecl(namespace = "https://ns.eclipse.org/marketplace/rest", name = "recommendationtab", substitutionHeadNamespace = "https://ns.eclipse.org/marketplace/rest", substitutionHeadName = "relatedtab")
+ObjectFactory: JAXBElement<Tab> createRecommendationtab(Tab value) {
+ObjectFactory: return new JAXBElement<Tab>(_Recommendationtab_QNAME, Tab.class, null, value);
+ObjectFactory: }
+ObjectFactory: 
+ObjectFactory: }
+SearchResult: @XmlAttribute(name = "term")
+SearchResult: final String term;
+SearchResult: @XmlAttribute(name = "url")
+SearchResult: @XmlJavaTypeAdapter(SafeURIAdapter.class)
+SearchResult: @XmlSchemaType(name = "anyURI")
+SearchResult: final URI url;
+Tab: @XmlValue
+Tab: final String name;
+Tab: @XmlAttribute(name = "enabled")
+Tab: @XmlJavaTypeAdapter(FlagToBooleanAdapter.class)
+Tab: final Boolean enabled;
+Wizard: @XmlElement(type = String.class)
+Wizard: @XmlJavaTypeAdapter(SafeURIAdapter.class)
+Wizard: @XmlSchemaType(name = "anyURI")
+Wizard: final URI icon;
+Wizard: @XmlElementRef(name = "relatedtab", namespace = "https://ns.eclipse.org/marketplace/rest", type = JAXBElement.class)
+Wizard: final JAXBElement<Tab> relatedtab;
+Wizard: @XmlAttribute(name = "title")
+Wizard: final String title;

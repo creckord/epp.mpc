@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<bindings 
+   version="2.1"
+   xmlns="http://java.sun.com/xml/ns/jaxb" 
+   xmlns:xjc="http://java.sun.com/xml/ns/jaxb/xjc" 
+   xmlns:xs="http://www.w3.org/2001/XMLSchema">
+   <bindings schemaLocation="../xsd/xmlelementwrapper.xsd">
+      <schemaBindings>
+         <package name="org.example.xjc.elementwrapper"/>
+      </schemaBindings>
+   </bindings>
+   <globalBindings>
+   </globalBindings>
+</bindings>

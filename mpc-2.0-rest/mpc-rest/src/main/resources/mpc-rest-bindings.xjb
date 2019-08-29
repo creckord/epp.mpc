@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<bindings version="2.1" xmlns="http://java.sun.com/xml/ns/jaxb" 
+   xmlns:xjc="http://java.sun.com/xml/ns/jaxb/xjc" 
+   xmlns:xs="http://www.w3.org/2001/XMLSchema" 
+   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+   xmlns:mpc="https://ns.eclipse.org/marketplace/rest" 
+   xsi:schemaLocation="https://ns.eclipse.org/marketplace/rest mpc-rest.xsd">
+   <globalBindings>
+      <xjc:javaType name="java.lang.Boolean" xmlType="mpc:Flag" adapter="org.eclipse.epp.mpc.core.jaxb.FlagToBooleanAdapter" />
+      <xjc:javaType name="java.lang.String" xmlType="mpc:CData" adapter="org.eclipse.epp.mpc.core.jaxb.CDataAdapter" />
+      <xjc:javaType name="java.net.URI" xmlType="xs:anyURI" adapter="org.eclipse.epp.mpc.core.jaxb.SafeURIAdapter" />
+      <xjc:javaType name="java.util.Date" xmlType="mpc:Epoch" adapter="org.eclipse.epp.mpc.core.jaxb.EpochDateAdapter" />
+      <xjc:javaType name="org.eclipse.epp.mpc.core.jaxb.TokenList" xmlType="mpc:Tokens" adapter="org.eclipse.epp.mpc.core.jaxb.TokensAdapter" />
+   </globalBindings>
+   <bindings schemaLocation="mpc-rest.xsd">
+      <schemaBindings >
+         <package name="org.eclipse.epp.mpc.regenerated"/>
+      </schemaBindings>
+
+      <!-- Text Body to Attribute Mappings -->
+      <bindings node="//xs:complexType[@name='Iu']">
+         <property name="id"/>
+      </bindings>
+      <bindings node="//xs:complexType[@name='News']">
+         <property name="url"/>
+      </bindings>
+      <bindings node="//xs:complexType[@name='Tab']">
+         <property name="name"/>
+      </bindings>
+      <bindings node="//xs:complexType[@name='CategoryContents']//xs:element[@name='node']">
+         <property name="nodes"/>
+      </bindings>
+      <bindings node="//xs:complexType[@name='Market']//xs:element[@name='category']">
+         <property name="categories"/>
+      </bindings>
+      <bindings node="//xs:complexType[@name='Marketplace']//xs:element[@name='category']">
+         <property name="categories"/>
+      </bindings>
+      <bindings node="//xs:complexType[@name='Marketplace']//xs:element[@name='market']">
+         <property name="markets"/>
+      </bindings>
+      <bindings node="//xs:complexType[@name='Marketplace']//xs:element[@name='node']">
+         <property name="nodes"/>
+      </bindings>
+      
+      <!-- Attribute Name Mappings -->
+      <bindings node="//xs:attribute[@name='marketid']">
+         <property name="marketId"/>
+      </bindings>
+      <bindings node="//xs:attribute[@name='apikey']">
+         <property name="apiKey"/>
+      </bindings>
+      <bindings node="//xs:attribute[@name='apiserver']">
+         <property name="apiServer"/>
+      </bindings>
+      <bindings node="//xs:attribute[@name='shorttitle']">
+         <property name="shortTitle"/>
+      </bindings>
+      <bindings node="//xs:element[@name='companyname']">
+         <property name="companyName"/>
+      </bindings>
+      <bindings node="//xs:element[@name='eclipseversion']">
+         <property name="eclipseVersion"/>
+      </bindings>
+      <bindings node="//xs:element[@name='foundationmember']">
+         <property name="foundationMember"/>
+      </bindings>
+      <bindings node="//xs:element[@name='homepageurl']">
+         <property name="homepageUrl"/>
+      </bindings>
+      <bindings node="//xs:element[@name='shortdescription']">
+         <property name="shortDescription"/>
+      </bindings>
+      <bindings node="//xs:element[@name='supporturl']">
+         <property name="supportUrl"/>
+      </bindings>
+      <bindings node="//xs:element[@name='updateurl']">
+         <property name="updateUrl"/>
+      </bindings>
+      <bindings node="//xs:element[@name='relatedtab']">
+         <property name="relatedTab"/>
+      </bindings>
+   </bindings>
+</bindings>
